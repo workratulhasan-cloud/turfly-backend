@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\OwnerController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -25,5 +26,12 @@ Route::prefix('v1')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::post('bookings/{reference}/pay-test', [PaymentController::class, 'payTest']);
         Route::post('bookings/{reference}/cancel', [PaymentController::class, 'cancel']);
+            
+        Route::middleware('role:owner')->prefix('owner')->group(function () {
+            Route::get('turfs', [OwnerController::class, 'turfs']);
+            Route::get('bookings', [OwnerController::class, 'bookings']);
+            Route::post('bookings', [OwnerController::class, 'storeManual']);
+            Route::post('bookings/{reference}/cancel', [OwnerController::class, 'cancel']);
+        });
     });
 });
