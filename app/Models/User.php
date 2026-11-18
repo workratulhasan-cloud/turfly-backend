@@ -12,9 +12,17 @@ use Filament\Panel;
 class User extends Authenticatable implements FilamentUser
 {
     public function canAccessPanel(Panel $panel): bool
-{
-    return $this->status === 'active' && in_array($this->role, ['admin', 'owner'], true);
-}
+    {
+        if ($this->status !== 'active') {
+            return false;
+        }
+
+        return match ($panel->getId()) {
+            'admin' => $this->role === 'admin',
+            'owner' => $this->role === 'owner',
+            default => false,
+        };
+    }
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
