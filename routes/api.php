@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\PaymentController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -22,5 +23,7 @@ Route::prefix('v1')->group(function () {
         Route::post('bookings', [BookingController::class, 'store']);
         Route::get('bookings', [BookingController::class, 'index']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::post('bookings/{reference}/pay-test', [PaymentController::class, 'payTest']);
+        Route::post('bookings/{reference}/cancel', [PaymentController::class, 'cancel']);
     });
 });
