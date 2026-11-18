@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\AvailabilityController;
+use App\Http\Controllers\Api\BookingController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -18,6 +19,8 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
+        Route::post('bookings', [BookingController::class, 'store']);
+        Route::get('bookings', [BookingController::class, 'index']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
     });
 });
