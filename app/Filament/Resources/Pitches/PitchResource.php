@@ -6,6 +6,7 @@ use App\Filament\Resources\Pitches\Pages\CreatePitch;
 use App\Filament\Resources\Pitches\Pages\EditPitch;
 use App\Filament\Resources\Pitches\Pages\ListPitches;
 use App\Filament\Resources\Pitches\Pages\ViewPitch;
+use App\Filament\Resources\Pitches\RelationManagers\PricingRulesRelationManager;
 use App\Filament\Resources\Pitches\Schemas\PitchForm;
 use App\Filament\Resources\Pitches\Schemas\PitchInfolist;
 use App\Filament\Resources\Pitches\Tables\PitchesTable;
@@ -42,11 +43,23 @@ class PitchResource extends Resource
     }
 
     public static function getRelations(): array
-{
-    return [
-        \App\Filament\Resources\Pitches\RelationManagers\PricingRulesRelationManager::class,
-    ];
-}
+    {
+        return [
+            PricingRulesRelationManager::class,
+        ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && $user->role === 'turf') {
+            $query->whereHas('turf', fn ($q) => $q->where('owner_id', $user->id));
+        }
+
+        return $query;
+    }
 
     public static function getPages(): array
     {

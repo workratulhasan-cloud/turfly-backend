@@ -27,7 +27,7 @@ Route::prefix('v1')->group(function () {
         Route::post('bookings/{reference}/pay-test', [PaymentController::class, 'payTest']);
         Route::post('bookings/{reference}/cancel', [PaymentController::class, 'cancel']);
             
-        Route::middleware('role:owner')->prefix('owner')->group(function () {
+            Route::middleware('role:turf')->prefix('turf')->group(function () {
             Route::get('turfs', [OwnerController::class, 'turfs']);
             Route::get('bookings', [OwnerController::class, 'bookings']);
             Route::post('bookings', [OwnerController::class, 'storeManual']);

@@ -16,6 +16,18 @@ use Filament\Tables\Table;
 
 class TurfResource extends Resource
 {
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && $user->role === 'owner') {
+            $query->where('owner_id', $user->id);
+        }
+
+        return $query;
+    }
+
     protected static ?string $model = Turf::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

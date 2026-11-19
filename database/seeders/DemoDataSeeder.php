@@ -13,7 +13,7 @@ class DemoDataSeeder extends Seeder
         $now = now();
 
         // City + Areas
-        $cityId = DB::table('cities')->updateOrInsert(
+        DB::table('cities')->updateOrInsert(
             ['slug' => 'dhaka'],
             ['name' => 'Dhaka', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]
         );
@@ -30,39 +30,50 @@ class DemoDataSeeder extends Seeder
             $areaIds[$slug] = DB::table('areas')->where('city_id', $cityId)->where('slug', $slug)->value('id');
         }
 
-        // Demo owner
-        $owner = User::updateOrCreate(
-            ['phone' => '01800000001'],
-            ['name' => 'Demo Owner', 'role' => 'owner', 'status' => 'active']
-        );
-
-        DB::table('owner_profiles')->updateOrInsert(
-            ['user_id' => $owner->id],
-            [
-                'business_name' => 'Demo Sports Ltd',
-                'verification_status' => 'approved',
-                'verified_at' => $now,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]
-        );
-
-        // Turfs
+        // Demo turf account (ek account = ek turf, tai prottek turf er alada user)
         $turfs = [
-            ['name' => 'Green Arena', 'slug' => 'green-arena', 'area' => 'dhanmondi', 'address' => 'Road 5, Dhanmondi', 'facilities' => ['parking', 'washroom', 'floodlight']],
-            ['name' => 'Sky Turf', 'slug' => 'sky-turf', 'area' => 'uttara', 'address' => 'Sector 7, Uttara', 'facilities' => ['floodlight', 'washroom']],
-            ['name' => 'Kick Off Ground', 'slug' => 'kick-off-ground', 'area' => 'mirpur', 'address' => 'Section 10, Mirpur', 'facilities' => ['parking']],
+            [
+                'name' => 'Green Arena', 'slug' => 'green-arena', 'area' => 'dhanmondi',
+                'address' => 'Road 5, Dhanmondi', 'facilities' => ['parking', 'washroom', 'floodlight'],
+                'phone' => '01800000001', 'email' => 'owner@turfly.test',
+            ],
+            [
+                'name' => 'Sky Turf', 'slug' => 'sky-turf', 'area' => 'uttara',
+                'address' => 'Sector 7, Uttara', 'facilities' => ['floodlight', 'washroom'],
+                'phone' => '01800000002', 'email' => 'sky@turfly.test',
+            ],
+            [
+                'name' => 'Kick Off Ground', 'slug' => 'kick-off-ground', 'area' => 'mirpur',
+                'address' => 'Section 10, Mirpur', 'facilities' => ['parking'],
+                'phone' => '01800000003', 'email' => 'kickoff@turfly.test',
+            ],
         ];
 
         foreach ($turfs as $t) {
+            $account = User::updateOrCreate(
+                ['phone' => $t['phone']],
+                ['name' => $t['name'], 'email' => $t['email'], 'role' => 'turf', 'status' => 'active']
+            );
+
+            DB::table('owner_profiles')->updateOrInsert(
+                ['user_id' => $account->id],
+                [
+                    'business_name' => $t['name'],
+                    'verification_status' => 'approved',
+                    'verified_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            );
+
             DB::table('turfs')->updateOrInsert(
                 ['slug' => $t['slug']],
                 [
-                    'owner_id' => $owner->id,
+                    'owner_id' => $account->id,
                     'area_id' => $areaIds[$t['area']],
                     'name' => $t['name'],
                     'address' => $t['address'],
-                    'contact_phone' => '01800000001',
+                    'contact_phone' => $t['phone'],
                     'facilities' => json_encode($t['facilities']),
                     'status' => 'active',
                     'created_at' => $now,
@@ -71,7 +82,7 @@ class DemoDataSeeder extends Seeder
             );
             $turfId = DB::table('turfs')->where('slug', $t['slug'])->value('id');
 
-            // Operating hours: 7 din, 06:00 - 23:00 (UTC na, local time)
+            // Operating hours: 7 din, 06:00 - 23:00 (local time)
             for ($d = 0; $d <= 6; $d++) {
                 DB::table('operating_hours')->updateOrInsert(
                     ['turf_id' => $turfId, 'weekday' => $d],
