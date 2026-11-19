@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\OwnerController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\TurfController;
+use App\Http\Controllers\Api\TurfRegistrationController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -21,13 +22,18 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
+        Route::post('auth/logout', [AuthController::class, 'logout']);
+
+        // Turf registration: player ra korbe, tai role middleware nai
+        Route::post('turf-registration', [TurfRegistrationController::class, 'store']);
+        Route::get('turf-registration', [TurfRegistrationController::class, 'status']);
+
         Route::post('bookings', [BookingController::class, 'store']);
         Route::get('bookings', [BookingController::class, 'index']);
-        Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::post('bookings/{reference}/pay-test', [PaymentController::class, 'payTest']);
         Route::post('bookings/{reference}/cancel', [PaymentController::class, 'cancel']);
-            
-            Route::middleware('role:turf')->prefix('turf')->group(function () {
+
+        Route::middleware('role:turf')->prefix('turf')->group(function () {
             Route::get('turfs', [OwnerController::class, 'turfs']);
             Route::get('bookings', [OwnerController::class, 'bookings']);
             Route::post('bookings', [OwnerController::class, 'storeManual']);

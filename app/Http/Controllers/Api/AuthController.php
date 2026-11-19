@@ -73,7 +73,7 @@ class AuthController extends Controller
 
         $user = User::firstOrCreate(
             ['phone' => $data['phone']],
-            ['name' => $data['name'] ?? 'Player', 'role' => 'player']
+            ['name' => $data['name'] ?? 'Player', 'role' => 'player', 'status' => 'active']
         );
 
         if ($user->status !== 'active') {
