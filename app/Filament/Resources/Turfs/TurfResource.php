@@ -13,21 +13,10 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TurfResource extends Resource
 {
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        $query = parent::getEloquentQuery();
-        $user = auth()->user();
-
-        if ($user && $user->role === 'owner') {
-            $query->where('owner_id', $user->id);
-        }
-
-        return $query;
-    }
-
     protected static ?string $model = Turf::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
@@ -47,6 +36,18 @@ class TurfResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && $user->role === 'turf') {
+            $query->where('owner_id', $user->id);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array
